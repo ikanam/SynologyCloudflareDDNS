@@ -3,7 +3,8 @@ set -e;
 
 ipv4Regex="((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])"
 
-proxy="true"
+proxy="false"
+ttl="300"
 
 # DSM Config
 username="$1"
@@ -38,11 +39,11 @@ fi
 
 if [[ $recordId = "null" ]]; then
     # Record not exists
-    res=$(curl -s -X POST "$createDnsApi" -H "Authorization: Bearer $password" -H "Content-Type:application/json" --data "{\"type\":\"$recordType\",\"name\":\"$hostname\",\"content\":\"$ipAddr\",\"proxied\":$proxy}")
+    res=$(curl -s -X POST "$createDnsApi" -H "Authorization: Bearer $password" -H "Content-Type:application/json" --data "{\"type\":\"$recordType\",\"name\":\"$hostname\",\"content\":\"$ipAddr\",\"ttl\":$ttl,\"proxied\":$proxy}")
 else
     # Record exists
     updateDnsApi="https://api.cloudflare.com/client/v4/zones/${username}/dns_records/${recordId}";
-    res=$(curl -s -X PUT "$updateDnsApi" -H "Authorization: Bearer $password" -H "Content-Type:application/json" --data "{\"type\":\"$recordType\",\"name\":\"$hostname\",\"content\":\"$ipAddr\",\"proxied\":$proxy}")
+    res=$(curl -s -X PUT "$updateDnsApi" -H "Authorization: Bearer $password" -H "Content-Type:application/json" --data "{\"type\":\"$recordType\",\"name\":\"$hostname\",\"content\":\"$ipAddr\",\"ttl\":$ttl,\"proxied\":$proxy}")
 fi
 
 resSuccess=$(echo "$res" | jq -r ".success")
